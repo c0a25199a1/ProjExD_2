@@ -6,6 +6,7 @@ import time
 
 
 WIDTH, HEIGHT = 1100, 650  # 背景画像の縦幅、横幅
+# キー操作
 DELTA = {
     pg.K_UP:(0,-5),
     pg.K_DOWN:(0,5), 
@@ -15,24 +16,22 @@ DELTA = {
 
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-
-
 # 画面内外判定関数
 def check_bound(rect: pg.rect) -> tuple[bool,bool]:
     """
     引数：こうかとんRect or 爆弾Rect 
-    戻り値：タプル(横方向判定結果・縦方向判定結果)
+    戻り値：タプル(x_judge:横方向判定結果・y_judge:縦方向判定結果)
     (True：画面内/False：画面外）
     """
-    y_jujge, x_jujge = True , True
+    x_judge, y_judge = True , True
 
-    if (rect.top<0) or (rect.bottom>HEIGHT):
-        y_jujge = False
+    if (rect.top<0) or (rect.bottom>HEIGHT):  # 縦にはみ出た場合
+        y_judge = False
     
-    if (rect.left<0) or (rect.right>WIDTH):
-        x_jujge = False
+    if (rect.left<0) or (rect.right>WIDTH):   # 横にはみ出た場合
+        x_judge = False
     
-    return x_jujge, y_jujge
+    return x_judge, y_judge
 
 # 追加機能1
 # ゲームオーバー画面を表示する関数
@@ -74,8 +73,17 @@ def gameover(screen: pg.Surface) -> None:
     time.sleep(3)
 
 # 追加機能2
-# 時間経過で爆弾が拡大、加速する関数
+# 時間経過で爆弾が拡大、加速させるための関数
 def init_bb_imgs() -> tuple[list[pg.surface], list[int]]:
+    """
+    引数:なし  戻り値:タプル(10段階サイズの画像リスト・10段階の加速度リスト)
+    時間経過で爆弾が拡大・加速できるよう10段階のサイズのリストと
+    加速度のリストを作成する関数
+
+    ** 変数 **
+    bb_imgs :画像を入れるリスト
+    bb_accs :加速度を入れるリスト
+    """
     bb_imgs = []
     bb_accs = [a for a in range(1,11)]
 
@@ -88,22 +96,22 @@ def init_bb_imgs() -> tuple[list[pg.surface], list[int]]:
     return tuple(bb_imgs), tuple(bb_accs)
 
 def main():
+    #背景画像
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")    
 
+    # こうかとん画像
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
-
     kk_rct.center = 300, 200
 
+    # 爆弾画像
     bb_img = pg.Surface((20,20))
     pg.draw.circle(bb_img,(255,0,0),(10,10),10)
     bb_img.set_colorkey((0,0,0))
     bb_rct = bb_img.get_rect()
     bb_rct.center = ran.randint(0,WIDTH), ran.randint(0,HEIGHT)
-
-
 
     clock = pg.time.Clock()
     tmr = 0
@@ -160,7 +168,7 @@ def main():
 
         screen.blit(bb_img, bb_rct)
 
-
+        # 更新
         pg.display.update()
         tmr += 1
         clock.tick(50)
