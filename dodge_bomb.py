@@ -58,6 +58,10 @@ def main():
                 return
         screen.blit(bg_img, [0, 0]) 
 
+        if kk_rct.colliderect(bb_rct): #こうかとんと爆弾が重なったら終了
+            print("ゲームオーバー!")
+            return 0
+
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
         # if key_lst[pg.K_UP]:
@@ -92,7 +96,7 @@ def main():
             vy *= -1
 
         screen.blit(bb_img, bb_rct)
-            
+
 
         pg.display.update()
         tmr += 1
