@@ -5,7 +5,6 @@ import random as ran
 
 
 WIDTH, HEIGHT = 1100, 650  # 背景画像の縦幅、横幅
-os.chdir(os.path.dirname(os.path.abspath(__file__)))
 DELTA = {
     pg.K_UP:(0,-5),
     pg.K_DOWN:(0,5), 
@@ -13,6 +12,26 @@ DELTA = {
     pg.K_RIGHT:(5,0)
     }
 
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+
+
+# 画面内外判定関数
+def check_bound(rect: pg.rect) -> tuple[bool,bool]:
+    """
+    引数：こうかとんRect or 爆弾Rect 
+    戻り値：タプル(横方向判定結果・縦方向判定結果)
+    (True：画面内/False：画面外）
+    """
+    y_jujge, x_jujge = True , True
+
+    if (rect.top<0) or (rect.bottom>HEIGHT):
+        y_jujge = False
+    
+    if (rect.left<0) or (rect.right>WIDTH):
+        x_jujge = False
+    
+    return x_jujge, y_jujge
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -56,9 +75,25 @@ def main():
                 sum_mv[1] += tpl[1]
 
         kk_rct.move_ip(sum_mv)
+
+        # こうかとんの画面外挙動
+        if(check_bound(kk_rct) != (True,True)): 
+            kk_rct.move_ip(-sum_mv[0],-sum_mv[1])
+
         screen.blit(kk_img, kk_rct)
-        screen.blit(bb_img, bb_rct)
+
         bb_rct.move_ip(vx,vy)
+
+        bb_x, bb_y = check_bound(bb_rct)
+        # 爆弾の画面外挙動
+        if bb_x != True:  # 横にはみ出た場合
+            vx *= -1
+        if bb_y != True:  # 縦にはみ出た場合
+            vy *= -1
+
+        screen.blit(bb_img, bb_rct)
+            
+
         pg.display.update()
         tmr += 1
         clock.tick(50)
