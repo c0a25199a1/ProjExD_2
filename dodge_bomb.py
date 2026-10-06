@@ -63,6 +63,19 @@ def gameover(screen: pg.Surface) -> None:
     pg.display.update()
     time.sleep(3)
 
+# 追加機能2
+# 時間経過で爆弾が拡大、加速する関数
+def init_bb_imgs() -> tuple[list[pg.surface], list[int]]:
+    bb_imgs = []
+    bb_accs = [a for a in range(1,11)]
+
+    for r in range(1,11):
+        bb_img = pg.Surface((20*r, 20*r))
+        pg.draw.circle(bb_img, (255,0,0), (10*r, 10*r), 10*r)
+        bb_img.set_colorkey((0,0,0))
+        bb_imgs.append(bb_img)
+    
+    return tuple(bb_imgs), tuple(bb_accs)
 
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
@@ -86,6 +99,9 @@ def main():
     tmr = 0
     vx,vy = 5, 5
 
+    # 爆弾の拡大画像と加速度の設定
+    bb_imgs, bb_accs = init_bb_imgs()
+
     while True:
         for event in pg.event.get():
             if event.type == pg.QUIT: 
@@ -99,20 +115,21 @@ def main():
 
         key_lst = pg.key.get_pressed()
         sum_mv = [0, 0]
-        # if key_lst[pg.K_UP]:
-        #     sum_mv[1] -= 5
-        # if key_lst[pg.K_DOWN]:
-        #     sum_mv[1] += 5
-        # if key_lst[pg.K_LEFT]:
-        #     sum_mv[0] -= 5
-        # if key_lst[pg.K_RIGHT]:
-        #     sum_mv[0] += 5
 
+        # 爆弾の加速
+        avy = vy*bb_accs[min(tmr//500,9)]
+        avx = vx*bb_accs[min(tmr//500,9)]
+        # 爆弾の拡大
+        bb_img = bb_imgs[min(tmr//500,9)]
+        #爆弾更新
+        bb_rct.width = bb_img.get_rect().width 
+        bb_rct.height = bb_img.get_rect().height
+
+        # こうかとんの挙動
         for k,tpl in DELTA.items():
             if key_lst[k]:
                 sum_mv[0] += tpl[0]
                 sum_mv[1] += tpl[1]
-
         kk_rct.move_ip(sum_mv)
 
         # こうかとんの画面外挙動
@@ -121,8 +138,8 @@ def main():
 
         screen.blit(kk_img, kk_rct)
 
-        bb_rct.move_ip(vx,vy)
-
+        # 爆弾の挙動
+        bb_rct.move_ip(avx,avy)
         bb_x, bb_y = check_bound(bb_rct)
         # 爆弾の画面外挙動
         if bb_x != True:  # 横にはみ出た場合
