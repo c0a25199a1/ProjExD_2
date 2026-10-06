@@ -2,6 +2,7 @@ import os
 import sys
 import pygame as pg
 import random as ran
+import time
 
 
 WIDTH, HEIGHT = 1100, 650  # 背景画像の縦幅、横幅
@@ -33,13 +34,46 @@ def check_bound(rect: pg.rect) -> tuple[bool,bool]:
     
     return x_jujge, y_jujge
 
+# 追加機能1
+# ゲームオーバー画面を表示する関数
+def gameover(screen: pg.Surface) -> None:
+    # 黒画面
+    gameover_img = pg.Surface((WIDTH,HEIGHT))
+    pg.draw.rect(gameover_img,(0,0,0),pg.Rect(0,0,WIDTH,HEIGHT))
+    gameover_img.set_alpha(200)
+
+    # テキスト描画
+    fonto = pg.font.Font(None,100)
+    txt = fonto.render("Game Over",True,(255,255,255))
+    txt_rct = txt.get_rect()
+    txt_rct.center = (WIDTH//2,HEIGHT//2)
+    gameover_img.blit(txt,txt_rct)
+
+    # こうかとん描画
+    clykk_img = pg.transform.rotozoom(pg.image.load("fig/8.png"), 0, 1)
+    clykk_rct1 = clykk_img.get_rect()
+    clykk_rct2 = clykk_img.get_rect()
+    clykk_rct1.center = (WIDTH//4,HEIGHT//2)
+    clykk_rct2.center = (WIDTH//4*3,HEIGHT//2)
+    gameover_img.blit(clykk_img,clykk_rct1)
+    gameover_img.blit(clykk_img,clykk_rct2)
+
+    # 画面更新
+    screen.blit(gameover_img,[0,0])
+    pg.display.update()
+    time.sleep(3)
+
+
 def main():
     pg.display.set_caption("逃げろ！こうかとん")
     screen = pg.display.set_mode((WIDTH, HEIGHT))
     bg_img = pg.image.load("fig/pg_bg.jpg")    
+
     kk_img = pg.transform.rotozoom(pg.image.load("fig/3.png"), 0, 0.9)
     kk_rct = kk_img.get_rect()
+
     kk_rct.center = 300, 200
+
     bb_img = pg.Surface((20,20))
     pg.draw.circle(bb_img,(255,0,0),(10,10),10)
     bb_img.set_colorkey((0,0,0))
@@ -59,6 +93,7 @@ def main():
         screen.blit(bg_img, [0, 0]) 
 
         if kk_rct.colliderect(bb_rct): #こうかとんと爆弾が重なったら終了
+            gameover(screen=screen)
             print("ゲームオーバー!")
             return 0
 
