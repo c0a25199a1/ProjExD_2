@@ -37,6 +37,16 @@ def check_bound(rect: pg.rect) -> tuple[bool,bool]:
 # 追加機能1
 # ゲームオーバー画面を表示する関数
 def gameover(screen: pg.Surface) -> None:
+    """
+    引数:screen(型:pg.Surface) 戻り値:なし
+    ゲームオーバー時に画面を暗転させ、「Game Over」のテキストと
+    泣き顔のこうかとんを表示する関数
+    
+    ** 変数説明 **
+    gameover_img :画面全体の空サーフェイス
+    txt :表示テキスト
+    clykk :泣き顔こうかとんの画像
+    """
     # 黒画面
     gameover_img = pg.Surface((WIDTH,HEIGHT))
     pg.draw.rect(gameover_img,(0,0,0),pg.Rect(0,0,WIDTH,HEIGHT))
@@ -121,7 +131,8 @@ def main():
         avx = vx*bb_accs[min(tmr//500,9)]
         # 爆弾の拡大
         bb_img = bb_imgs[min(tmr//500,9)]
-        #爆弾更新
+
+        # 爆弾更新
         bb_rct.width = bb_img.get_rect().width 
         bb_rct.height = bb_img.get_rect().height
 
